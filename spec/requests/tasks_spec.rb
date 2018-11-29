@@ -3,9 +3,13 @@ require 'rails_helper'
 RSpec.describe "Tasks API", type: :request do
 
   let(:title) { "I'm a valid title" }
+  let(:tag) { "ValidTag" }
 
   let(:valid_attributes) {
-    { title: title }
+    {
+      title: title,
+      tags: [tag]
+    }
   }
 
   let(:invalid_attributes) {
@@ -27,6 +31,11 @@ RSpec.describe "Tasks API", type: :request do
     it "returns list of existing Tasks" do
       expect(response.body).to have_json_size(1).at_path('data')
       expect(response.body).to include_json(title.to_json).at_path('data/0/attributes/title')
+    end
+
+    it "returns related tags" do
+      tag_id = Tag.find_by(title: tag).to_param
+      expect(response.body).to include_json(tag_id.to_json).at_path('data/0/relationships/tags/data/0/id')
     end
 
     context "respond with a defined JSON Format" do
@@ -74,11 +83,18 @@ RSpec.describe "Tasks API", type: :request do
         }.to change(Task, :count).by(1)
       end
 
-      it "renders a JSON response with the new task" do
+      it "creates a new related Tag" do
+        expect {
+          post api_v1_tasks_path, params: {data: {attributes: valid_attributes}}
+        }.to change(Tag, :count).by(1)
+      end
+
+      it "renders a JSON response with the new task and tag" do
         post api_v1_tasks_path, params: {data: {attributes: valid_attributes}}
         expect(response).to have_http_status(201) #created
         expect(response.content_type).to eq('application/json')
         expect(response.body).to include_json(title.to_json).at_path('data/attributes/title')
+        expect(response.body).to include_json("tags".to_json).at_path('data/relationships/tags/data/0/type')
       end
     end
 
@@ -94,24 +110,32 @@ RSpec.describe "Tasks API", type: :request do
   describe "#update PUT /api/v1/tasks/:id" do
     context "with valid params" do
       let(:new_title) { "Updated title" }
+      let(:new_tag) { "New Tag" }
 
       let(:new_attributes) {
-        { title: new_title }
+        {
+          title: new_title,
+          tags: [new_tag]
+        }
       }
 
-      it "renders a JSON response with the updated task" do
+      it "renders a JSON response with the updated task and tags" do
         task = Task.create! valid_attributes
         put api_v1_task_path(task), params: {data: {attributes: new_attributes}}
+        new_tag_id = Tag.find_by(title: new_tag).id.to_s
         expect(response).to have_http_status(200) #ok
         expect(response.content_type).to eq('application/json')
         expect(response.body).to include_json(new_title.to_json).at_path('data/attributes/title')
+        expect(response.body).to include_json(new_tag_id.to_json).at_path('data/relationships/tags/data/0/id')
       end
 
-      it "updates the requested Task" do
+      it "updates the requested Task and tags" do
         task = Task.create! valid_attributes
         put api_v1_task_path(task), params: {data: {attributes: new_attributes}}
         task.reload
         expect(task.title).to eq(new_title)
+        expect(task.tags.first.title).to eq(new_tag)
+        expect(response.body).to include_json("tags".to_json).at_path('data/relationships/tags/data/0/type')
       end
     end
 
@@ -145,6 +169,13 @@ RSpec.describe "Tasks API", type: :request do
       task = Task.create! valid_attributes
       delete api_v1_task_path(task)
       expect(response).to have_http_status(204) #no_content
+    end
+
+    it "does not delete Tags when it deletes parent" do
+      task = Task.create! valid_attributes
+      expect(Tag.all.count).to eq(1)
+      delete api_v1_task_path(task)
+      expect(Tag.all.count).to eq(1)
     end
   end
 
