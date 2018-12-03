@@ -3,10 +3,6 @@ class SerializableTask < JSONAPI::Serializable::Resource
 
   attributes :title
 
-  has_many :tags do
-    meta do
-      { count: @object.tags.count }
-    end
-  end
+  has_many :tags
 
 end
