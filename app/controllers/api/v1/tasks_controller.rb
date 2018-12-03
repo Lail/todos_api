@@ -3,9 +3,9 @@ class Api::V1::TasksController < ApplicationController
 
   # GET /tasks
   def index
-    @tasks = Task.order(:created_at)
+    @tasks = Task.order(:created_at).includes(:tags)
 
-    render json: @tasks
+    render jsonapi: @tasks, include: :tags
   end
 
   # POST /tasks
@@ -13,18 +13,18 @@ class Api::V1::TasksController < ApplicationController
     @task = Task.new(task_params)
 
     if @task.save
-      render json: @task, status: :created
+      render jsonapi: @task, include: :tags, status: :created
     else
-      render json: @task.errors, status: :unprocessable_entity
+      render jsonapi_errors: @task.errors, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /tasks/1
   def update
     if @task.update(task_params)
-      render json: @task
+      render jsonapi: @task, include: :tags
     else
-      render json: @task.errors, status: :unprocessable_entity
+      render jsonapi_errors: @task.errors, status: :unprocessable_entity
     end
   end
 

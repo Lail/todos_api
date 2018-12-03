@@ -20,7 +20,7 @@ RSpec.describe "Tags API", type: :request do
     end
 
     it "returns a success response" do
-      expect(response.content_type).to eq('application/json')
+      expect(response.content_type).to eq('application/vnd.api+json')
       expect(response).to have_http_status(200)
     end
 
@@ -77,7 +77,7 @@ RSpec.describe "Tags API", type: :request do
       it "renders a JSON response with the new tag" do
         post api_v1_tags_path, params: {data: {attributes: valid_attributes}}
         expect(response).to have_http_status(201) #created
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
         expect(response.body).to include_json(title.to_json).at_path('data/attributes/title')
       end
     end
@@ -86,7 +86,7 @@ RSpec.describe "Tags API", type: :request do
       it "renders a JSON response with errors for the new tag" do
         post api_v1_tags_path, params: {data: {attributes: invalid_attributes}}
         expect(response).to have_http_status(422) #unprocessable_entity
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
       end
     end
   end
@@ -103,7 +103,7 @@ RSpec.describe "Tags API", type: :request do
         tag = Tag.create! valid_attributes
         put api_v1_tag_path(tag), params: {data: {attributes: new_attributes}}
         expect(response).to have_http_status(200) #ok
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
         expect(response.body).to include_json(new_title.to_json).at_path('data/attributes/title')
       end
 
@@ -120,7 +120,7 @@ RSpec.describe "Tags API", type: :request do
         tag = Tag.create! valid_attributes
         put api_v1_tag_path(tag), params: {data: {attributes: invalid_attributes}}
         expect(response).to have_http_status(422) #unprocessable_entity
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
       end
 
       it "does not update the requested Tag" do

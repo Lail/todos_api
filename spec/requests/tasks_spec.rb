@@ -24,7 +24,7 @@ RSpec.describe "Tasks API", type: :request do
     end
 
     it "returns a success response" do
-      expect(response.content_type).to eq('application/json')
+      expect(response.content_type).to eq('application/vnd.api+json')
       expect(response).to have_http_status(200)
     end
 
@@ -92,7 +92,7 @@ RSpec.describe "Tasks API", type: :request do
       it "renders a JSON response with the new task and tag" do
         post api_v1_tasks_path, params: {data: {attributes: valid_attributes}}
         expect(response).to have_http_status(201) #created
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
         expect(response.body).to include_json(title.to_json).at_path('data/attributes/title')
         expect(response.body).to include_json("tags".to_json).at_path('data/relationships/tags/data/0/type')
       end
@@ -102,7 +102,7 @@ RSpec.describe "Tasks API", type: :request do
       it "renders a JSON response with errors for the new task" do
         post api_v1_tasks_path, params: {data: {attributes: invalid_attributes}}
         expect(response).to have_http_status(422) #unprocessable_entity
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
       end
     end
   end
@@ -124,7 +124,7 @@ RSpec.describe "Tasks API", type: :request do
         put api_v1_task_path(task), params: {data: {attributes: new_attributes}}
         new_tag_id = Tag.find_by(title: new_tag).id.to_s
         expect(response).to have_http_status(200) #ok
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
         expect(response.body).to include_json(new_title.to_json).at_path('data/attributes/title')
         expect(response.body).to include_json(new_tag_id.to_json).at_path('data/relationships/tags/data/0/id')
       end
@@ -144,7 +144,7 @@ RSpec.describe "Tasks API", type: :request do
         task = Task.create! valid_attributes
         put api_v1_task_path(task), params: {data: {attributes: invalid_attributes}}
         expect(response).to have_http_status(422) #unprocessable_entity
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to eq('application/vnd.api+json')
       end
 
       it "does not update the requested Task" do

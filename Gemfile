@@ -32,6 +32,10 @@ gem 'active_model_serializers', '~> 0.10.0'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
 
+# jsonapi-rb is a ruby library for producing and consuming JSON API documents
+# http://jsonapi-rb.org/
+gem 'jsonapi-rails'
+
 group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

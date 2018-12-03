@@ -3,9 +3,9 @@ class Api::V1::TagsController < ApplicationController
 
   # GET /tags
   def index
-    @tags = Tag.all
+    @tags = Tag.order(:created_at).includes(:tasks)
 
-    render json: @tags
+    render jsonapi: @tags, include: :tasks
   end
 
   # POST /tags
@@ -13,18 +13,18 @@ class Api::V1::TagsController < ApplicationController
     @tag = Tag.new(tag_params)
 
     if @tag.save
-      render json: @tag, status: :created
+      render jsonapi: @tag, include: :tasks, status: :created
     else
-      render json: @tag.errors, status: :unprocessable_entity
+      render jsonapi_errors: @tag.errors, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /tags/1
   def update
     if @tag.update(tag_params)
-      render json: @tag
+      render jsonapi: @tag, include: :tasks
     else
-      render json: @tag.errors, status: :unprocessable_entity
+      render jsonapi_errors: @tag.errors, status: :unprocessable_entity
     end
   end
 
