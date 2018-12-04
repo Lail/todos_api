@@ -3,7 +3,7 @@ class Api::V1::TasksController < ApplicationController
 
   # GET /tasks
   def index
-    @tasks = Task.order(:created_at).includes(:tags)
+    @tasks = Task.order(created_at: :desc).includes(:tags)
 
     render jsonapi: @tasks, include: :tags
   end
